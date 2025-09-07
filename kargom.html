@@ -21,28 +21,38 @@ input, textarea, button {
   width:90%; max-width:400px;
   padding:10px; margin-bottom:10px;
   border-radius:12px; border:none;
-  text-transform:uppercase; /* büyük harf */
+  text-transform:uppercase;
 }
 textarea { height:80px; resize:none; }
 button { cursor:pointer; font-weight:600; }
 #sendBtn { background:#27ae60; color:#fff; }
 #sendBtn:hover { background:#2ecc71; }
 
-/* Çık butonu küçültüldü */
 #exitBtn {
   position: fixed;
-  top: 12px;
-  right: 12px;
+  top: 16px;      /* üstten 16px */
+  right: 16px;    /* sağdan 16px */
+  width: 48px;
+  height: 48px;
   background: #e67e22;
-  color: #fff;
   border: none;
-  padding: 4px 8px;      /* küçültülmüş boyut */
-  border-radius: 8px;
+  border-radius: 8px;       /* hafif köşeli kare */
+  display: flex;
+  justify-content: center;
+  align-items: center;
   cursor: pointer;
-  font-size: 14px;        /* yazı boyutu aynı */
-  font-weight: 600;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  transition: all 0.2s;
+  z-index: 1000;
 }
-#exitBtn:hover { background: #d35400; }
+#exitBtn:hover {
+  background: #d35400;
+  transform: scale(1.1);
+}
+#exitBtn svg {
+  fill: #fff;
+}
+
 
 #cargoStatus {
   width:90%; max-width:400px;
@@ -64,7 +74,8 @@ button { cursor:pointer; font-weight:600; }
 }
 .message-buttons {
   position:absolute;
-  bottom:8px; right:8px;
+  top:8px;
+  right:8px;
 }
 .message-buttons button {
   background:#c0392b; color:#fff;
@@ -162,17 +173,17 @@ button { cursor:pointer; font-weight:600; }
 <body>
 
 <h1>Kargo Bildirimi Gönder</h1>
-<button id="exitBtn">Çık</button>
+<button id="exitBtn">Çıkış</button>
 <input type="text" id="company" placeholder="Kargo Firması">
 <input type="text" id="deliveryCode" placeholder="Teslimat Kodu">
 <input type="text" id="phone" placeholder="Telefon Numaranız">
-<textarea id="note">KARGOMU ALABİLRMİSİNİZ?</textarea>
+<textarea id="note">Kargomu Alabirmisiniz?</textarea>
 <button id="sendBtn">Gönder</button>
 
 <h2>Kargo Durumu</h2>
 <div id="cargoStatus"></div>
 
-<!-- Telefon uyarı modal -->
+<!-- Telefon modal -->
 <div id="phoneModal">
   <div class="modal-content">
     <p>Telefon numarası girmediniz. Kargo ile ilgili bir sorun çıktığında güvenliğin size ulaşabilmesi için lütfen telefon numaranızı giriniz.</p>
@@ -213,7 +224,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Kullanıcı doğrulama
 let storedUser = sessionStorage.getItem("currentUser");
 let currentUser = storedUser ? JSON.parse(storedUser).username : null;
 if(!currentUser){
@@ -244,16 +254,14 @@ closeMissingFields.addEventListener('click', ()=>{ missingFieldsModal.style.disp
 
 exitBtn.addEventListener('click', ()=>{ window.location.href = "site.html"; });
 
-// Gönderme işlemi
 sendBtn.addEventListener('click', async ()=>{
   const company = companyInput.value.trim().toUpperCase();
   const deliveryCode = deliveryCodeInput.value.trim().toUpperCase();
   const phone = phoneInput.value.trim();
-  let note = noteInput.value.trim() || "KARGOMU ALABİLRMİSİNİZ?";
+  let note = noteInput.value.trim() || "Kargomu Alabirmisiniz?";
 
-  // Eksik alan kontrolü
   if(!company || !deliveryCode){ 
-    missingFieldsModal.style.display = 'flex';  // MODAL göster
+    missingFieldsModal.style.display = 'flex';
     return; 
   }
 
@@ -265,31 +273,27 @@ sendBtn.addEventListener('click', async ()=>{
   await addDelivery(company, deliveryCode, phone, note);
 });
 
-// Telefon modal butonları
 enterPhoneBtn.addEventListener('click', ()=>{ phoneModal.style.display='none'; phoneInput.focus(); });
 skipPhoneBtn.addEventListener('click', async ()=>{
   phoneModal.style.display='none';
   const company = companyInput.value.trim().toUpperCase();
   const deliveryCode = deliveryCodeInput.value.trim().toUpperCase();
-  let note = noteInput.value.trim() || "KARGOMU ALABİLRMİSİNİZ?";
+  let note = noteInput.value.trim() || "Kargomu Alabilirmisiniz?";
   await addDelivery(company, deliveryCode, '', note);
 });
 
-// Bildirim ekleme fonksiyonu
 async function addDelivery(company, deliveryCode, phone, note){
   const apartmentRef = ref(db,'kargoDeliveries/'+currentUser);
   const snapshot = await get(apartmentRef);
   const val = snapshot.val();
   let userNotifications = val ? Object.keys(val).map(k=>({id:k, ...val[k]})).sort((a,b)=>new Date(a.date)-new Date(b.date)) : [];
 
-  // Duplicate kontrol
   const duplicate = userNotifications.find(m=>m.company===company && m.deliveryCode===deliveryCode && m.status!=='Teslim Alındı');
   if(duplicate){
-    duplicateModal.style.display='flex'; // MODAL göster
+    duplicateModal.style.display='flex';
     return;
   }
 
-  // 10 bildirim limiti
   while(userNotifications.length >=10){
     const oldest = userNotifications.shift();
     await remove(ref(db,'kargoDeliveries/'+currentUser+'/'+oldest.id));
@@ -307,10 +311,9 @@ async function addDelivery(company, deliveryCode, phone, note){
     countdownStart: null
   });
 
-  companyInput.value=''; deliveryCodeInput.value=''; noteInput.value='KARGOMU ALABİLRMİSİNİZ?'; phoneInput.value='';
+  companyInput.value=''; deliveryCodeInput.value=''; noteInput.value='Kargomu Alabilirmisiniz?'; phoneInput.value='';
 }
 
-// Durumları gösterme
 onValue(ref(db,'kargoDeliveries/'+currentUser), snapshot=>{
   const val = snapshot.val();
   cargoStatus.innerHTML='';
@@ -327,7 +330,7 @@ onValue(ref(db,'kargoDeliveries/'+currentUser), snapshot=>{
         let messageText = "Güvenliğe Bildirim Gönderildi";
         let showDelete = false;
         if(m.status === "Teslim Alındı"){
-          messageText = "Teslim Alan Güvenlik : Cem Gazi ARSLAN";
+          messageText = `Teslim Alan Güvenlik : ${m.receivedBy || '-'}`;
           showDelete = true;
         }
 
@@ -361,7 +364,6 @@ onValue(ref(db,'kargoDeliveries/'+currentUser), snapshot=>{
   }
 });
 
-// 36 saat geri sayım
 function startCountdown(kargoId, countdownStart){
   const countdownDiv = document.getElementById(`countdown-${kargoId}`);
   const endTime = new Date(countdownStart).getTime() + 36*60*60*1000;
@@ -379,9 +381,10 @@ function startCountdown(kargoId, countdownStart){
 
     const hours = Math.floor(distance / (1000*60*60));
     const minutes = Math.floor((distance % (1000*60*60)) / (1000*60));
+    const seconds = Math.floor((distance % (1000*60)) / 1000);
 
     if(countdownDiv){
-      countdownDiv.innerText = `Bildirim Otomatik Silinecek: ${hours} saat ${minutes} dakika`;
+      countdownDiv.innerText = `Bildirim Otomatik Silinecek: ${hours} saat ${minutes} dakika ${seconds} saniye`;
     }
   },1000);
 }
