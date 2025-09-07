@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amir Devriye Paneli</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+<!-- DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<style>
+body { margin:0; font-family:'Roboto',sans-serif; background:#1f2a38; color:#e0e0e0; }
+header { padding:20px; display:flex; justify-content:space-between; align-items:center; background:#222f3e; box-shadow:0 5px 15px rgba(0,0,0,0.3);}
+header h1 { margin:0; color:#ffcc00; }
+header button { padding:8px 15px; border:none; border-radius:10px; background:#e67e22; color:#fff; cursor:pointer; }
+.container { padding:20px; max-width:1300px; margin:auto; }
+.cards { display:flex; gap:20px; flex-wrap:wrap; margin-bottom:20px; }
+.card { flex:1; min-width:220px; background:#222f3e; padding:15px; border-radius:12px; box-shadow:0 5px 15px rgba(0,0,0,0.3); text-align:center; }
+.card h3 { margin:5px 0; font-size:1rem; color:#ffcc00; }
+.card p { font-size:1.3rem; margin:0; text-align:center; }
+
+#devriyeTable_wrapper { background:#1f2a38; padding:10px; border-radius:12px; }
+table.dataTable { width:100% !important; color:#fff; }
+table.dataTable th { background:#2c3e50; color:#ffcc00; }
+table.dataTable td { background:#1a2b3a; text-align:center; }
+tr.excess:hover { background:rgba(231,76,60,0.3) !important; }
+tr.partial:hover { background:rgba(241,196,15,0.3) !important; }
+tr.complete:hover { background:rgba(46,204,113,0.3) !important; }
+
+.modal { display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); justify-content:center; align-items:center; }
+.modal-content { background:#1f2a38; padding:20px; border-radius:12px; width:90%; max-width:700px; max-height:90%; overflow:auto; }
+.modal-content h3 { margin-top:0; color:#ffcc00; }
+.modal-content pre { background:#222f3e; padding:10px; border-radius:10px; overflow-x:auto; color:#fff; }
+.closeBtn { background:#c0392b; color:#fff; padding:8px 12px; border:none; border-radius:8px; cursor:pointer; margin-top:10px; }
+
+.filters { margin-bottom:10px; }
+.filters label { margin-right:5px; }
+.filters select, .filters input { margin-right:15px; padding:5px 8px; border-radius:6px; border:none; background:#1a2b3a; color:#fff; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Amir Devriye Paneli</h1>
+  <div>
+    <button id="logoutBtn">Çıkış</button>
+    <button id="statusBtn" style="margin-left:10px; padding:8px 15px; border:none; border-radius:10px; background:#27ae60; color:#fff; cursor:pointer;">Durum Grafiği</button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="cards">
+    <div class="card">
+      <h3>Toplam Devriye</h3>
+      <p id="totalDevriye">0</p>
+    </div>
+    <div class="card">
+      <h3>Tamamlanan</h3>
+      <p id="completeDevriye">0</p>
+    </div>
+    <div class="card">
+      <h3>Yarım</h3>
+      <p id="partialDevriye">0</p>
+    </div>
+    <div class="card">
+      <h3>Eksik</h3>
+      <p id="excessDevriye">0</p>
+    </div>
+  </div>
+
+  <div class="filters">
+    <label for="filterUser">Güvenlik Filtrele:</label>
+    <select id="filterUser"><option value="">Tümü</option></select>
+
+    <label for="filterStatus">Durum Filtrele:</label>
+    <select id="filterStatus">
+      <option value="">Tümü</option>
+      <option value="Tam devriye">Tam devriye</option>
+      <option value="Yarım devriye">Yarım devriye</option>
+      <option value="Eksik">Eksik</option>
+    </select>
+
+    <label for="filterDate">Tarih Filtrele:</label>
+    <input type="date" id="filterDate">
+  </div>
+
+  <table id="devriyeTable" class="display">
+    <thead>
+      <tr>
+        <th>Kullanıcı</th>
+        <th>Tarih</th>
+        <th>Başlangıç</th>
+        <th>Bitiş</th>
+        <th>Durum</th>
+        <th>Puan</th>
+        <th>Detay</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<div id="detailModal" class="modal">
+  <div class="modal-content">
+    <h3>Devriye Detayları</h3>
+    <div id="devriyeDetail"></div>
+    <button class="closeBtn" onclick="document.getElementById('detailModal').style.display='none'">Kapat</button>
+  </div>
+</div>
+
+<div id="statusModal" class="modal">
+  <div class="modal-content">
+    <h3>Güvenlik Devriye Durumları</h3>
+    <table id="statusTable" style="width:100%; border-collapse:collapse; color:#fff;">
+      <thead>
+        <tr style="background:#2c3e50;">
+          <th style="padding:8px;">Kullanıcı</th>
+          <th style="padding:8px;">Tam Devriye</th>
+          <th style="padding:8px;">Yarım Devriye</th>
+          <th style="padding:8px;">Eksik Devriye</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <button class="closeBtn" onclick="document.getElementById('statusModal').style.display='none'">Kapat</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import { getDatabase, ref, onValue, onChildAdded } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBX0PUaisTG-TvIOCCtKzSiI3e7yhLu3ik",
+  authDomain: "guzelailemchat.firebaseapp.com",
+  databaseURL: "https://guzelailemchat-default-rtdb.firebaseio.com",
+  projectId: "guzelailemchat",
+  storageBucket: "guzelailemchat.firebasestorage.app",
+  messagingSenderId: "353492004109",
+  appId: "1:353492004109:web:3a668422a563e6951cd444"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+document.getElementById('logoutBtn').addEventListener('click', ()=>{ 
+  window.location.href='yetkili.html';
+});
+
+let table = $('#devriyeTable').DataTable({ pageLength: 20, language:{
+  "lengthMenu": "Göster _MENU_ kayıt",
+  "zeroRecords": "Kayıt bulunamadı",
+  "info": "_TOTAL_ kayıttan _START_ - _END_ arası gösteriliyor",
+  "infoEmpty": "Gösterilecek kayıt yok",
+  "search": "Ara:",
+  "paginate": { "first": "İlk","last": "Son","next": "Sonraki","previous": "Önceki" }
+}});
+let devriyeData = [];
+let usersSet = new Set();
+
+function normalizeStatus(s){
+  if(!s) return "Eksik";
+  s = s.toLowerCase();
+  if(s.includes("tam")) return "Tam devriye";
+  else if(s.includes("yarım")) return "Yarım devriye";
+  else return "Eksik";
+}
+
+// Firebase’den devriye verilerini gerçek zamanlı çek
+const devriyeRef = ref(db,'devriyeHistory');
+onChildAdded(devriyeRef, snapshot=>{
+  const userKey = snapshot.key;
+  const userData = snapshot.val();
+  
+  Object.values(userData).forEach(dev=> {
+    dev.status = normalizeStatus(dev.status);
+    dev.points = dev.points || [];
+    devriyeData.push(dev);
+    filterTable(); // tabloyu ve kartları güncelle
+  });
+});
+
+// Filtreleme
+document.getElementById('filterUser').addEventListener('change', filterTable);
+document.getElementById('filterStatus').addEventListener('change', filterTable);
+document.getElementById('filterDate').addEventListener('change', filterTable);
+
+function populateTable(data){
+  table.clear();
+  data.forEach(d=>{
+    let rowClass = d.status==='Tam devriye'?'complete': d.status==='Yarım devriye'?'partial':'excess';
+    table.row.add([
+      d.user || "",
+      d.displayDate || "",
+      d.start || "",
+      d.end || "",
+      `<span class="${rowClass}">${d.status}</span>`,
+      (d.points||[]).length,
+      `<button onclick="showDetail('${d.user}','${d.timestamp}')">Detay</button>`
+    ]).node().className = rowClass;
+  });
+  table.draw();
+}
+
+function populateFilters(data){
+  usersSet.clear();
+  data.forEach(d=>usersSet.add(d.user));
+  const filterUser = document.getElementById('filterUser');
+  filterUser.innerHTML='<option value="">Tümü</option>';
+  usersSet.forEach(u=>{
+    const opt = document.createElement('option'); opt.value=u; opt.textContent=u;
+    filterUser.appendChild(opt);
+  });
+}
+
+function filterTable(){
+  const user = document.getElementById('filterUser').value;
+  const status = document.getElementById('filterStatus').value;
+  const date = document.getElementById('filterDate').value;
+
+  let filtered = devriyeData.filter(d=>{
+    return (user==='' || d.user===user) &&
+           (status==='' || d.status===status) &&
+           (date==='' || d.date===date);
+  });
+
+  populateTable(filtered);
+  populateFilters(filtered);
+  updateCards(filtered);
+}
+
+function updateCards(data){
+  const total = data.length;
+  let complete=0, partial=0, excess=0;
+
+  data.forEach(d=>{
+    if(d.status==="Tam devriye") complete++;
+    else if(d.status==="Yarım devriye") partial++;
+    else excess++;
+  });
+
+  document.getElementById('totalDevriye').textContent = total;
+  document.getElementById('completeDevriye').textContent = complete;
+  document.getElementById('partialDevriye').textContent = partial;
+  document.getElementById('excessDevriye').textContent = excess;
+}
+
+// Detay modal
+window.showDetail = function(user,timestamp){
+  const detail = devriyeData.find(d=>d.user===user && d.timestamp.toString()===timestamp.toString());
+  if(detail){
+    let html = `<strong>Kullanıcı:</strong> ${detail.user}<br>`;
+    html += `<strong>Tarih:</strong> ${detail.displayDate}<br>`;
+    html += `<strong>Başlangıç:</strong> ${detail.start}<br>`;
+    html += `<strong>Bitiş:</strong> ${detail.end}<br>`;
+    html += `<strong>Durum:</strong> ${detail.status}<br>`;
+    html += `<strong>Puanlar / Noktalar:</strong><ul>`;
+    (detail.points||[]).forEach(p=>{ html += `<li>${p}</li>`; });
+    html += `</ul>`;
+    document.getElementById('devriyeDetail').innerHTML = html;
+    document.getElementById('detailModal').style.display='flex';
+  }
+};
+
+// Durum Grafiği
+document.getElementById('statusBtn').addEventListener('click', ()=>{
+  updateStatusTable(devriyeData);
+  document.getElementById('statusModal').style.display='flex';
+});
+
+function updateStatusTable(data){
+  const tbody = document.querySelector('#statusTable tbody');
+  tbody.innerHTML = '';
+
+  const userStats = {};
+  data.forEach(d=>{
+    if(!userStats[d.user]) userStats[d.user]={complete:0, partial:0, excess:0};
+    if(d.status==="Tam devriye") userStats[d.user].complete++;
+    else if(d.status==="Yarım devriye") userStats[d.user].partial++;
+    else userStats[d.user].excess++;
+  });
+
+  const sortedUsers = Object.keys(userStats).sort((a,b)=>{
+    const A = userStats[a], B = userStats[b];
+    if(B.complete !== A.complete) return B.complete - A.complete;
+    return A.excess - B.excess;
+  });
+
+  const bestUser = sortedUsers[0];
+  const worstUser = sortedUsers[sortedUsers.length-1];
+
+  sortedUsers.forEach(u=>{
+    const stats = userStats[u];
+    const tr = document.createElement('tr');
+
+    if(u===bestUser) tr.style.background='rgba(46,204,113,0.3)';
+    else if(u===worstUser) tr.style.background='rgba(231,76,60,0.3)';
+    else tr.style.background='transparent';
+
+    tr.innerHTML = `
+      <td style="padding:8px;">${u}${u===bestUser?' ⭐':''}${u===worstUser?' ⚠':''}</td>
+      <td style="padding:8px; text-align:center; color:green;">${stats.complete}</td>
+      <td style="padding:8px; text-align:center; color:yellow;">${stats.partial}</td>
+      <td style="padding:8px; text-align:center; color:red;">${stats.excess}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+</script>
+</body>
+</html>
