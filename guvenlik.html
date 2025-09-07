@@ -243,14 +243,42 @@ if(!currentUser || currentUser.type!=='security'){
   window.location.href="login.html";
 }
  const activeDevriyeRef = ref(db,'activeDevriye/'+(currentUser.username || currentUser.name));
-const olayBtn = document.getElementById('olayBtn');
-olayBtn.addEventListener('click', () => {
+// === Olay Bildir / Kargo Bildir için nöbet kontrolü ===
+async function checkActiveNobet(){
+    const snapshot = await get(nobetRecordsRef);
+    const val = snapshot.val();
+    if(val){
+        for(const rec of Object.values(val)){
+            if(rec.startBy === (currentUser.name || currentUser.username) && rec.status === 'started'){
+                return true; // Nöbet var
+            }
+        }
+    }
+    return false; // Nöbet yok
+}
+
+// Olay Bildir butonu
+olayBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const hasNobet = await checkActiveNobet();
+    if(!hasNobet){
+        showWarningModal("Olay Bildirmek için önce nöbeti almalısınız!");
+        return;
+    }
     window.location.href = 'olay.html';
 });
-const kargoBtn = document.getElementById('kargoBtn');
-kargoBtn.addEventListener('click', () => {
+
+// Kargo Bildir butonu
+kargoBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const hasNobet = await checkActiveNobet();
+    if(!hasNobet){
+        showWarningModal("Kargo Bildirimlerini Görüntülemek için Önce nöbeti almalısınız!");
+        return;
+    }
     window.location.href = 'kargog.html';
 });
+
 
 
 
