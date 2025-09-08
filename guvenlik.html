@@ -659,6 +659,8 @@ async function startScanner(pointName, btnEl){
         btnEl.classList.add('read');
         btnEl.nextElementSibling.innerText='Tamamlandı';
         if(!readPoints.includes(pointName)) readPoints.push(pointName);
+		update(activeDevriyeRef, { readPoints: readPoints });
+
         qrScanner.stop();
         qrModal.style.display='none';
       } else {
