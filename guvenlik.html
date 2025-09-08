@@ -573,15 +573,7 @@ await set(activeDevriyeRef, {
 devriyeEndBtn.addEventListener('click', async ()=>{
   if(!devriyeStarted) return;
   const devriyeEndTime=new Date();
-  devriyeEndBtn.addEventListener('click', async ()=> {
-  if(!devriyeStarted) return;
-  const devriyeEndTime = new Date();
-
-  // 🔹 Son readPoints güncellemesini Firebase'e yaz
-  await update(activeDevriyeRef, { readPoints: readPoints });
-
-  const statusText = readPoints.length === (window.currentPoints?.length || 0) ? "Tam devriye" : "Eksik devriye";
-
+  let statusText = readPoints.length===document.querySelectorAll('.qrBtn').length ? "Tam devriye":"Eksik devriye";
   const weekday = devriyeStartTime.toLocaleDateString('tr-TR',{ weekday:'long' });
   const dateText = `${devriyeStartTime.toLocaleDateString()} (${weekday.charAt(0).toUpperCase()+weekday.slice(1)})`;
 
@@ -593,23 +585,12 @@ devriyeEndBtn.addEventListener('click', async ()=>{
     start: devriyeStartTime.toLocaleTimeString(),
     end: devriyeEndTime.toLocaleTimeString(),
     status: statusText,
-    points: [...readPoints],  // 🔹 artık boş kalmayacak
+    points:[...readPoints],
     timestamp: Date.now()
   };
 
-  await push(ref(db,'devriyeHistory/'+(currentUser.username || currentUser.name)), devriyeRecord);
-  await set(activeDevriyeRef, null);
-
-  devriyeStarted=false;
-  devriyeEndBtn.disabled=true;
-  devriyeStatus.innerText='Devriye tamamlandı.';
-
-  document.querySelectorAll('.qrBtn').forEach(btn => { 
-      btn.classList.remove('read'); 
-      btn.nextElementSibling.innerText = btn.dataset.point; 
-  });
-});
-
+  push(ref(db,'devriyeHistory/'+(currentUser.username || currentUser.name)), devriyeRecord);
+    await set(activeDevriyeRef, null);
   devriyeStarted=false;
   devriyeEndBtn.disabled=true;
   devriyeStatus.innerText='Devriye tamamlandı.';
@@ -676,8 +657,6 @@ async function startScanner(pointName, btnEl){
         btnEl.classList.add('read');
         btnEl.nextElementSibling.innerText='Tamamlandı';
         if(!readPoints.includes(pointName)) readPoints.push(pointName);
-		update(activeDevriyeRef, { readPoints: readPoints });
-
         qrScanner.stop();
         qrModal.style.display='none';
       } else {
@@ -740,9 +719,6 @@ async function loadQRPoints() {
 
             btn.addEventListener('click', ()=>{ startScanner(point.name, btn); });
         });
-		// 🔹 Tüm QR noktalarını global değişkende sakla (devriye tam/eksik kontrolü için)
-window.currentPoints = Object.values(pointsData).map(p => p.name);
-
     } catch(err){
         console.error("QR noktaları yüklenirken hata:", err);
         alert("QR noktaları yüklenemedi! İnternet bağlantınızı kontrol edin.");
