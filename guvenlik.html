@@ -573,8 +573,14 @@ await set(activeDevriyeRef, {
 devriyeEndBtn.addEventListener('click', async ()=>{
   if(!devriyeStarted) return;
   const devriyeEndTime=new Date();
-  let allPoints = window.currentPoints || [];
-let statusText = allPoints.every(p => readPoints.includes(p)) ? "Tam devriye" : "Eksik devriye";
+  devriyeEndBtn.addEventListener('click', async ()=> {
+  if(!devriyeStarted) return;
+  const devriyeEndTime = new Date();
+
+  // 🔹 Son readPoints güncellemesini Firebase'e yaz
+  await update(activeDevriyeRef, { readPoints: readPoints });
+
+  const statusText = readPoints.length === (window.currentPoints?.length || 0) ? "Tam devriye" : "Eksik devriye";
 
   const weekday = devriyeStartTime.toLocaleDateString('tr-TR',{ weekday:'long' });
   const dateText = `${devriyeStartTime.toLocaleDateString()} (${weekday.charAt(0).toUpperCase()+weekday.slice(1)})`;
@@ -587,12 +593,23 @@ let statusText = allPoints.every(p => readPoints.includes(p)) ? "Tam devriye" : 
     start: devriyeStartTime.toLocaleTimeString(),
     end: devriyeEndTime.toLocaleTimeString(),
     status: statusText,
-    points:[...readPoints],
+    points: [...readPoints],  // 🔹 artık boş kalmayacak
     timestamp: Date.now()
   };
 
-  push(ref(db,'devriyeHistory/'+(currentUser.username || currentUser.name)), devriyeRecord);
-    await set(activeDevriyeRef, null);
+  await push(ref(db,'devriyeHistory/'+(currentUser.username || currentUser.name)), devriyeRecord);
+  await set(activeDevriyeRef, null);
+
+  devriyeStarted=false;
+  devriyeEndBtn.disabled=true;
+  devriyeStatus.innerText='Devriye tamamlandı.';
+
+  document.querySelectorAll('.qrBtn').forEach(btn => { 
+      btn.classList.remove('read'); 
+      btn.nextElementSibling.innerText = btn.dataset.point; 
+  });
+});
+
   devriyeStarted=false;
   devriyeEndBtn.disabled=true;
   devriyeStatus.innerText='Devriye tamamlandı.';
