@@ -573,7 +573,9 @@ await set(activeDevriyeRef, {
 devriyeEndBtn.addEventListener('click', async ()=>{
   if(!devriyeStarted) return;
   const devriyeEndTime=new Date();
-  let statusText = readPoints.length===document.querySelectorAll('.qrBtn').length ? "Tam devriye":"Eksik devriye";
+  let allPoints = window.currentPoints || [];
+let statusText = allPoints.every(p => readPoints.includes(p)) ? "Tam devriye" : "Eksik devriye";
+
   const weekday = devriyeStartTime.toLocaleDateString('tr-TR',{ weekday:'long' });
   const dateText = `${devriyeStartTime.toLocaleDateString()} (${weekday.charAt(0).toUpperCase()+weekday.slice(1)})`;
 
@@ -719,6 +721,9 @@ async function loadQRPoints() {
 
             btn.addEventListener('click', ()=>{ startScanner(point.name, btn); });
         });
+		// 🔹 Tüm QR noktalarını global değişkende sakla (devriye tam/eksik kontrolü için)
+window.currentPoints = Object.values(pointsData).map(p => p.name);
+
     } catch(err){
         console.error("QR noktaları yüklenirken hata:", err);
         alert("QR noktaları yüklenemedi! İnternet bağlantınızı kontrol edin.");
