@@ -638,38 +638,63 @@ historyToggleBtn.addEventListener('click', ()=>{
 });
 
 /* === QR SCANNER === */
-function hasCameraLib(){ return typeof Html5Qrcode !== 'undefined'; }
-
-async function startScanner(pointName, btnEl){
-  if(!devriyeStarted){ alert("Önce devriyeyi başlatın!"); return; }
-  if(!hasCameraLib()){ alert("QR kütüphanesi yüklenemedi!"); return; }
-  qrModal.style.display='flex';
-
-  if(qrScanner) qrScanner.clear();
-  qrScanner = new Html5Qrcode(qrReaderDivId);
-
-  qrScanner.start(
-    { facingMode:"environment" },
-    { fps:10, qrbox:250 },
-    qrCodeMessage => {
-      const qrId = qrCodeMessage.trim();
-      if(qrId === btnEl.dataset.qrid){
-        btnEl.classList.add('read');
-        btnEl.nextElementSibling.innerText='Tamamlandı';
-        if(!readPoints.includes(pointName)) readPoints.push(pointName);
-        qrScanner.stop();
-        qrModal.style.display='none';
-      } else {
-        alert("QR kod eşleşmedi!");
-      }
-    },
-    err=>{ /* console.log(err) */ }
-  ).catch(err=>{ alert("Kamera açılamadı: "+err); });
+function hasCameraLib() { 
+    return typeof Html5Qrcode !== 'undefined'; 
 }
 
-closeScanner.addEventListener('click', ()=>{
-  if(qrScanner) qrScanner.stop();
-  qrModal.style.display='none';
+async function startScanner(pointName, btnEl) {
+    if (!devriyeStarted) { 
+        alert("Önce devriyeyi başlatın!"); 
+        return; 
+    }
+    if (!hasCameraLib()) { 
+        alert("QR kütüphanesi yüklenemedi!"); 
+        return; 
+    }
+    
+    qrModal.style.display = 'flex';
+
+    if (qrScanner) qrScanner.clear();
+    qrScanner = new Html5Qrcode(qrReaderDivId);
+
+    qrScanner.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 },
+        qrCodeMessage => {
+            const qrId = qrCodeMessage.trim();
+
+            if (qrId === btnEl.dataset.qrid) {
+               // 🔹 Önce readPoints dizisine ekle
+if (!readPoints.includes(pointName)) readPoints.push(pointName);
+
+// 🔹 Firebase’e hemen kaydet
+update(activeDevriyeRef, { readPoints: readPoints })
+  .then(() => {
+      // UI güncelle
+      btnEl.classList.add('read');
+      btnEl.nextElementSibling.innerText = 'Tamamlandı';
+  })
+  .catch(err => {
+      console.error("Firebase güncelleme hatası:", err);
+      alert("QR durumu kaydedilemedi!");
+  });
+
+
+                qrScanner.stop();
+                qrModal.style.display = 'none';
+            } else {
+                alert("QR kod eşleşmedi!");
+            }
+        },
+        err => { /* console.log(err) */ }
+    ).catch(err => { 
+        alert("Kamera açılamadı: " + err); 
+    });
+}
+
+closeScanner.addEventListener('click', () => {
+    if (qrScanner) qrScanner.stop();
+    qrModal.style.display = 'none';
 });
 
 /* === Firebase'den dinamik QR noktalarını çek (mobil uyumlu) === */
