@@ -6,7 +6,6 @@
 <title>Yetkili Paneli</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-/* ===================== GENEL ===================== */
 body {
   margin:0;
   font-family:'Roboto',sans-serif;
@@ -16,25 +15,25 @@ body {
   padding:20px;
   display:flex;
   justify-content:center;
-  box-sizing:border-box;
 }
-.panel-wrapper {
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap:20px;
-  max-width:1200px;
-  width:100%;
+@media (max-width: 1024px){
+  .panel-wrapper {
+    grid-template-columns: 1fr; /* tüm paneller alt alta gelir */
+  }
+  header {flex-direction:column; align-items:flex-start; gap:10px;}
+  #searchInput {width:100%; margin-bottom:8px;}
+  #searchBtn {width:100%;}
+  header button {width:100%; margin:3px 0;}
+  table, th, td {font-size:0.85rem;}
 }
 
-/* ===================== PANEL ===================== */
 .panel {
   background: linear-gradient(145deg,#1f2a38,#263248);
   border-radius:20px;
   padding:20px;
   box-shadow:0 8px 20px rgba(0,0,0,0.6);
-  width:100%;
-  box-sizing:border-box;
 }
+
 .panel h2 {
   margin-top:0;
   margin-bottom:15px;
@@ -43,27 +42,58 @@ body {
   padding-bottom:5px;
 }
 
-/* ===================== BUTONLAR ===================== */
+/* ===================== TEXTAREA ===================== */
+textarea {
+  width:100%;
+  min-height:120px;
+  padding:12px;
+  font-size:1rem;
+  border-radius:15px;
+  border:none;
+  background:#1a2b3a;
+  color:#fff;
+  resize:vertical;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+}
+textarea:focus {
+  outline:none;
+  box-shadow:0 0 8px #ffcc00;
+}
+
+/* ===================== BUTTON ===================== */
 button {
-  border-radius:12px;
-  padding:10px 18px;
-  font-size:0.9rem;
+  border-radius:15px;
+  padding:12px 20px;
+  font-size:0.95rem;
   font-weight:600;
   cursor:pointer;
   border:none;
-  transition:all 0.3s;
-  box-shadow:0 4px 10px rgba(0,0,0,0.3);
+  transition:0.3s;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
+#createUserBtn {background:linear-gradient(45deg,#27ae60,#2ecc71); color:#fff;}
+.delete {background:linear-gradient(45deg,#e74c3c,#ff6b6b); color:#fff;}
+.edit {background:linear-gradient(45deg,#9b59b6,#8e44ad); color:#fff;}
+#sendMsgBtn {background:linear-gradient(45deg,#2980b9,#3498db); color:#fff;}
 button:hover {
   transform:translateY(-2px);
-  opacity:0.95;
+  opacity:0.9;
   box-shadow:0 6px 12px rgba(0,0,0,0.4);
 }
-#createUserBtn {background:linear-gradient(135deg,#27ae60,#2ecc71); color:#fff;}
-.delete {background:linear-gradient(135deg,#e74c3c,#ff6b6b); color:#fff;}
-.edit {background:linear-gradient(135deg,#9b59b6,#8e44ad); color:#fff;}
-#sendMsgBtn {background:linear-gradient(135deg,#2980b9,#3498db); color:#fff;}
-header button {background:linear-gradient(135deg,#f39c12,#e67e22); color:#fff;}
+
+/* ===================== TABLE ===================== */
+th, td {
+  padding:10px;
+  text-align:left;
+  background:#1a2b3a;
+  border-bottom:1px solid rgba(255,255,255,0.15);
+}
+th {
+  background:#2c3e50;
+  color:#ffcc00;
+  text-transform:uppercase;
+}
+tr:hover {background: rgba(52,152,219,0.2);}
 
 /* ===================== HEADER ===================== */
 header {
@@ -79,63 +109,16 @@ header h1 {
   margin:0;
   font-size:1.8rem;
 }
-
-/* ===================== PROFİL SİMGESİ ===================== */
-#profileBtn {
-  position: absolute; /* sağ üst köşeye sabitle */
-  top: 10px;
-  right: 10px;
-  background: #3498db; /* mavi renk */
-  color: #fff;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  font-size: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  transition: 0.3s;
-}
-
-#profileBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.4);
-}
-
-
-/* ===================== FORM ELEMENTLER ===================== */
-input, textarea, select {
-  width:100%;
-  padding:12px 14px;
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,0.2);
-  background:#1a2b3a;
+header button {
+  background:#e67e22;
   color:#fff;
-  font-size:1rem;
-  box-shadow:0 3px 6px rgba(0,0,0,0.4);
-  transition:0.3s;
-  outline:none;
+  border-radius:12px;
+  padding:8px 15px;
+  margin:5px 3px;
+  font-size:0.85rem;
 }
-input:focus, textarea:focus, select:focus {
-  border-color:#ffcc00;
-  box-shadow:0 0 8px #ffcc00;
-}
-::placeholder {color: rgba(255,255,255,0.6);}
 
-/* ===================== TABLO ===================== */
-th, td {
-  padding:10px;
-  text-align:left;
-  background:#1a2b3a;
-  border-bottom:1px solid rgba(255,255,255,0.15);
-}
-th {background:#2c3e50; color:#ffcc00; text-transform:uppercase;}
-tr:hover {background: rgba(52,152,219,0.2);}
-table {width:100%; table-layout:fixed; word-wrap:break-word;}
-
-/* ===================== MODALLAR ===================== */
+/* ===================== MODALS ===================== */
 .modal {
   display:none;
   position:fixed;
@@ -160,8 +143,53 @@ table {width:100%; table-layout:fixed; word-wrap:break-word;}
   flex-direction:column;
   gap:10px;
 }
+.modal-content input, .modal-content textarea {margin:0;}
 
-/* ===================== PROGRESS BAR ===================== */
+/* ===================== PROFİL SİMGESİ ===================== */
+#profileBtn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #3498db; /* mavi renk */
+  color: #fff;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  transition: 0.3s;
+}
+
+#profileBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+}
+
+/* ===================== ARAMA BUTONU ===================== */
+#searchInput {width:calc(100% - 90px); display:inline-block;}
+#searchBtn {width:80px; display:inline-block; background:#3498db; color:#fff;}
+
+/* ===================== PAGINATION ===================== */
+.pagination {
+  margin-top:10px;
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
+}
+.page-btn {
+  background:#2980b9;
+  color:#fff;
+  border-radius:8px;
+  padding:5px 10px;
+  cursor:pointer;
+  font-size:0.85rem;
+}
+.page-btn.active {background:#ffcc00; color:#000;}
+.password-info {margin-top:5px; color:#ffcc00; font-size:0.85rem;}
 .progress-container {
   width:100%;
   background:#1a2b3a;
@@ -181,40 +209,16 @@ table {width:100%; table-layout:fixed; word-wrap:break-word;}
   font-weight:bold;
   font-size:0.85rem;
 }
-
-/* ===================== PAGINATION ===================== */
-.pagination {
-  margin-top:10px;
-  display:flex;
-  gap:5px;
-  flex-wrap:wrap;
-}
-.page-btn {
-  background:#2980b9;
-  color:#fff;
-  border-radius:8px;
-  padding:5px 10px;
-  cursor:pointer;
-  font-size:0.85rem;
-}
-.page-btn.active {background:#ffcc00; color:#000;}
+#totalUsers {margin-bottom:10px; font-weight:bold; color:#ffcc00;}
 
 /* ===================== MOBİL UYUMLULUK ===================== */
-@media (max-width:1024px){
-  .panel-wrapper {grid-template-columns:1fr; gap:15px;}
+@media (max-width: 1024px){
+  .panel-wrapper {grid-template-columns:1fr;}
   header {flex-direction:column; align-items:flex-start; gap:10px;}
+  #searchInput {width:100%; margin-bottom:8px;}
+  #searchBtn {width:100%;}
   header button {width:100%; margin:3px 0;}
-  #searchInput, #searchBtn {width:100%; margin-bottom:8px;}
   table, th, td {font-size:0.85rem;}
-}
-@media (max-width:480px){
-  body {padding:10px;}
-  .panel {padding:15px;}
-  header h1 {font-size:1.5rem;}
-  input, select, textarea, button {font-size:0.9rem; padding:8px;}
-  .modal-content {width:95%; padding:15px;}
-  th, td {padding:8px;}
-  .progress-bar {font-size:0.75rem;}
 }
 @media (max-width: 480px){
   body {padding:10px;}
@@ -224,14 +228,54 @@ table {width:100%; table-layout:fixed; word-wrap:break-word;}
   .modal-content {width:95%; padding:15px;}
   th, td {padding:8px;}
   .progress-bar {font-size:0.75rem;}
-
-  /* Profil butonu mobil ayarları */
   #profileBtn {
-    top: 10px;
-    right: 10px;
-    width: 45px;
-    height: 45px;
-    font-size: 20px;
+  top: 10px;
+  right: 10px;
+  width: 45px;
+  height: 45px;
+  font-size: 20px;
+}
+/* Tüm form elemanları: input, textarea, select */
+input, textarea, select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: #1a2b3a; /* panel ile uyumlu koyu arka plan */
+  color: #fff;
+  font-size: 1rem;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+  transition: 0.3s;
+  outline: none;
+}
+
+/* focus efekti */
+input:focus, textarea:focus, select:focus {
+  border-color: #ffcc00;
+  box-shadow: 0 0 8px #ffcc00;
+}
+
+/* placeholder renkleri */
+::placeholder {
+  color: rgba(255,255,255,0.6);
+}
+
+/* select kutusundaki varsayılan ok simgesini temizle */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="white" height="16" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px 16px;
+}
+
+/* responsive: mobilde padding ve font küçülür */
+@media (max-width: 480px) {
+  input, textarea, select {
+    padding: 10px 12px;
+    font-size: 0.9rem;
   }
 }
 
@@ -241,7 +285,7 @@ table {width:100%; table-layout:fixed; word-wrap:break-word;}
 
 <div class="panel-wrapper">
 
-<<header>
+<header>
   <h1>Yetkili Paneli</h1>
   <div class="header-buttons">
     <button id="olayBtn">Olay Bildirimleri</button>
