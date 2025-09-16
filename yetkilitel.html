@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yetkili Paneli</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-kaeD..." crossorigin="anonymous" referrerpolicy="no-referrer" />
 <style>
 body {
   margin:0;
@@ -147,16 +148,32 @@ header button {
 
 /* ===================== PROFİL SİMGESİ ===================== */
 #profileBtn {
-  background:#2980b9;
-  color:#fff;
-  border-radius:50%;
-  width:45px;
-  height:45px;
-  font-size:20px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg,#2980b9,#3498db);
+  color: #fff;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  transition: 0.3s;
+  z-index: 1000;
 }
+#profileBtn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+#profileBtn i {
+  font-size: 24px;
+  color: #fff;
+}
+
 
 /* ===================== ARAMA BUTONU ===================== */
 #searchInput {width:calc(100% - 90px); display:inline-block;}
@@ -286,18 +303,43 @@ select {
 }
 
 /* Header butonlarını estetikleştirelim */
+.header-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 .header-buttons button {
-  background: linear-gradient(135deg,#ff9a00,#ff6a00);
+  background: linear-gradient(135deg,#ff7e5f,#feb47b);
   color: #fff;
   border-radius: 12px;
   padding: 10px 18px;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  margin: 5px 5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
+.header-buttons button i {
+  font-size: 16px;
+}
+.header-buttons button:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+}
+@media(max-width:768px){
+  .header-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+  .header-buttons button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 .header-buttons button:hover {
   transform: translateY(-2px) scale(1.03);
   opacity: 0.95;
@@ -322,15 +364,16 @@ select {
 <header>
   <h1>Yetkili Paneli</h1>
   <div class="header-buttons">
-    <button id="olayBtn">Olay Bildirimleri</button>
-    <button id="patrolBtn">Devriye Takip</button>
-    <button id="watchBtn" onclick="window.location.href='tamam.html'">Nöbet Takip</button>
-    <button id="logoutBtn">Çıkış</button>
-  </div>
-</header>
+  <button id="olayBtn"><i class="fa-solid fa-bell"></i> Olay Bildirimleri</button>
+  <button id="patrolBtn"><i class="fa-solid fa-shield"></i> Devriye Takip</button>
+  <button id="watchBtn" onclick="window.location.href='tamam.html'"><i class="fa-solid fa-clock"></i> Nöbet Takip</button>
+  <button id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Çıkış</button>
+</div>
+
 
 <!-- Profil simgesi ekranın sağ üst köşesinde -->
-<button id="profileBtn">👤</button>
+<button id="profileBtn"><i class="fa-solid fa-user"></i></button>
+
 
 
 <!-- Yeni Kullanıcı Oluştur Paneli -->
