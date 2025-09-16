@@ -52,6 +52,21 @@ h1 { text-align:center; margin-bottom:20px; font-weight:700; }
   .card-body { font-size:13px; }
   #backBtn { width:50px; height:50px; font-size:14px; }
 }
+#logContainer {
+  max-height: 450px; /* 5 kart görünür */
+  overflow-y: auto;  /* aşağı kaydırınca scroll çıkar */
+  padding-right: 5px; /* scrollbar için boşluk */
+}
+
+/* opsiyonel: scroll bar stilini güzelleştirmek istersen */
+#logContainer::-webkit-scrollbar {
+  width: 6px;
+}
+#logContainer::-webkit-scrollbar-thumb {
+  background: #2980b9;
+  border-radius: 3px;
+}
+
 </style>
 </head>
 <body>
@@ -205,7 +220,8 @@ function renderLogs(data){
       
       const durationDiv = document.createElement('div');
       durationDiv.className = 'duration-box';
-      durationDiv.innerText = `Nöbet Süresi: ${diffHrs} Saat ${diffMin} Dakika`;
+      durationDiv.innerText = `🕒 ${diffHrs} Saat ${diffMin} Dakika`;
+	  durationDiv.title = "Nöbet Süresi";
       
       card.appendChild(durationDiv);
     }
