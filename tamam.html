@@ -10,10 +10,10 @@ body { margin:0; font-family:'Montserrat', sans-serif; background:#ecf0f1; color
 .container { max-width:600px; margin:20px auto; padding:10px; }
 h1 { text-align:center; margin-bottom:20px; font-weight:700; }
 
-.filters { display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
-.filters label { font-weight:600; font-size:14px; }
-.filters input, .filters select, .filters button { padding:8px 12px; border-radius:8px; border:none; font-size:14px; }
-.filters button { background:#2980b9; color:#fff; font-weight:600; cursor:pointer; transition:0.3s; }
+.filters { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; }
+.filters label { font-weight:600; font-size:14px; width:100%; }
+.filters input, .filters select, .filters button { padding:8px 12px; border-radius:8px; border:none; font-size:14px; flex:1 1 48%; }
+.filters button { background:#2980b9; color:#fff; font-weight:600; cursor:pointer; transition:0.3s; flex:1 1 100%; }
 .filters button:hover { background:#3498db; }
 
 .card { background:#fdfdfd; border-radius:12px; padding:12px; margin-bottom:15px; box-shadow:0 4px 12px rgba(0,0,0,0.1); position:relative; transition:0.2s; }
@@ -27,13 +27,11 @@ h1 { text-align:center; margin-bottom:20px; font-weight:700; }
 .info-icon { display:flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:#e74c3c; color:#fff; font-weight:700; cursor:pointer; font-size:12px; }
 .tooltip { display:none; position:absolute; top:30px; right:0; background:#34495e; color:#fff; padding:6px 10px; border-radius:8px; font-size:12px; width:180px; z-index:10; }
 .info-container:hover .tooltip { display:block; }
-
 .info-container { position: absolute; top: -10px; right: -10px; }
 
 .duration-box {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
+  position: relative; /* absolute yerine relative yaptık */
+  margin-top: 8px;   /* teslim tarihinden boşluk */
   background: #dfe6e9;
   padding: 6px 10px;
   border-radius: 8px;
@@ -48,17 +46,16 @@ h1 { text-align:center; margin-bottom:20px; font-weight:700; }
 
 @media(max-width:480px){
   .container{padding:10px;}
-  .filters input, .filters select, .filters button{font-size:12px; padding:8px;}
+  .filters input, .filters select, .filters button{font-size:12px; padding:8px; flex:1 1 100%;}
   .card-body { font-size:13px; }
   #backBtn { width:50px; height:50px; font-size:14px; }
 }
+
 #logContainer {
   max-height: 450px; /* 5 kart görünür */
   overflow-y: auto;  /* aşağı kaydırınca scroll çıkar */
   padding-right: 5px; /* scrollbar için boşluk */
 }
-
-/* opsiyonel: scroll bar stilini güzelleştirmek istersen */
 #logContainer::-webkit-scrollbar {
   width: 6px;
 }
@@ -66,7 +63,6 @@ h1 { text-align:center; margin-bottom:20px; font-weight:700; }
   background: #2980b9;
   border-radius: 3px;
 }
-
 </style>
 </head>
 <body>
@@ -136,7 +132,6 @@ onValue(usersRef, snapshot=>{
   }
 });
 
-// 🔹 Tamamlanan devriyeler 'tamamnbt' altından geliyor
 const tamamnbtRef = ref(db,'tamamnbt'); 
 onValue(tamamnbtRef, snapshot=>{
   const val = snapshot.val();
@@ -144,14 +139,10 @@ onValue(tamamnbtRef, snapshot=>{
   renderLogs(logs);
 });
 
-// 🔹 Yeni devriye ekleme fonksiyonu (maks 300 kayıt)
 async function addRecord(newRecord) {
   await push(tamamnbtRef, newRecord);
-
-  // Toplam kayıt kontrolü
   const snapshot = await get(tamamnbtRef);
   const records = snapshot.val() ? Object.entries(snapshot.val()) : [];
-
   if(records.length > 300){
     const [oldestKey] = records[0];
     await remove(ref(db, 'tamamnbt/' + oldestKey));
@@ -160,6 +151,7 @@ async function addRecord(newRecord) {
 
 function renderLogs(data){
   logContainer.innerHTML='';
+  data.sort((a,b)=> new Date(b.startTime) - new Date(a.startTime));
   if(data.length === 0){
     logContainer.innerHTML = '<p style="text-align:center;color:#777;">Gösterilecek tamamlanan nöbet yok.</p>';
     return;
@@ -172,7 +164,6 @@ function renderLogs(data){
     const card = document.createElement('div');
     card.classList.add('card');
 
-    // Header: sadece startBy ve deliveredTo
     const header = document.createElement('div');
     header.className = 'card-header';
     header.innerHTML = `
@@ -198,7 +189,6 @@ function renderLogs(data){
       card.appendChild(infoWrapper);
     }
 
-    // Body: Başlangıç/Teslim noktası ve tarihleri
     const body = document.createElement('div');
     body.className = 'card-body';
     const options = { dateStyle: "short", timeStyle: "short" };
@@ -220,8 +210,8 @@ function renderLogs(data){
       
       const durationDiv = document.createElement('div');
       durationDiv.className = 'duration-box';
-      durationDiv.innerText = `🕒 ${diffHrs} Saat ${diffMin} Dakika`;
-	  durationDiv.title = "Nöbet Süresi";
+      durationDiv.innerText = `🕒Nöbet Süresi:${diffHrs} Saat ${diffMin} Dakika`;
+      durationDiv.title = "Nöbet Süresi";
       
       card.appendChild(durationDiv);
     }
