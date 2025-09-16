@@ -15,99 +15,44 @@
 
 <style>
 body { margin:0; font-family:'Roboto',sans-serif; background:#1f2a38; color:#e0e0e0; }
-header { padding:20px; display:flex; justify-content:space-between; align-items:center; background:#222f3e; box-shadow:0 5px 15px rgba(0,0,0,0.3);}
-header h1 { margin:0; color:#ffcc00; font-size:1.3rem; }
-header button { padding:8px 15px; border:none; border-radius:10px; background:#e67e22; color:#fff; cursor:pointer; font-size:0.9rem;}
-.container { padding:20px; max-width:1300px; margin:auto; }
-.cards { display:flex; gap:20px; flex-wrap:wrap; margin-bottom:20px; }
-.card { flex:1; min-width:150px; background:#222f3e; padding:15px; border-radius:12px; box-shadow:0 5px 15px rgba(0,0,0,0.3); text-align:center; }
-.card h3 { margin:5px 0; font-size:1rem; color:#ffcc00; }
-.card p { font-size:1.3rem; margin:0; text-align:center; }
+header { padding:15px 10px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; background:#222f3e; box-shadow:0 5px 15px rgba(0,0,0,0.3);}
+header h1 { margin:0; color:#ffcc00; font-size:1.2rem; }
+header button { padding:8px 12px; border:none; border-radius:10px; background:#e67e22; color:#fff; cursor:pointer; margin-top:5px; }
+.container { padding:10px; max-width:1200px; margin:auto; }
+.cards { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:15px; }
+.card { flex:1; min-width:140px; background:#222f3e; padding:10px; border-radius:10px; box-shadow:0 5px 15px rgba(0,0,0,0.3); text-align:center; }
+.card h3 { margin:5px 0; font-size:0.9rem; color:#ffcc00; }
+.card p { font-size:1.2rem; margin:0; text-align:center; }
 
-/* Filtreler */
-.filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  margin-bottom: 15px;
-}
-
-.filters label {
-  margin-right: 5px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.filters select,
-.filters input {
-  padding: 6px 10px;
-  border-radius: 8px;
-  border: none;
-  background: #1a2b3a;
-  color: #fff;
-  min-width: 120px;
-  flex: 1;
-}
-
-/* Mobil filtre düzeni */
-@media (max-width: 768px) {
-  .filters {
-    flex-direction: column;
-    gap: 10px;
-  }
-  .filters label,
-  .filters select,
-  .filters input {
-    width: 100%;
-  }
-  #devriyeTable_wrapper {
-    overflow-x: auto;
-  }
-
-  /* DataTable "Göster / Ara" kutuları alt alta */
-  #devriyeTable_wrapper .dataTables_length,
-  #devriyeTable_wrapper .dataTables_filter {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    margin-bottom: 10px;
-  }
-  #devriyeTable_wrapper .dataTables_length select,
-  #devriyeTable_wrapper .dataTables_filter input {
-    width: 100%;
-  }
-}
-
-/* DataTable ve tablolar */
-#devriyeTable_wrapper { background:#1f2a38; padding:10px; border-radius:12px; }
+#devriyeTable_wrapper { background:#1f2a38; padding:5px; border-radius:10px; overflow-x:auto; }
 table.dataTable { width:100% !important; color:#fff; }
 table.dataTable th { background:#2c3e50; color:#ffcc00; }
-table.dataTable td { background:#1a2b3a; text-align:center; }
+table.dataTable td { background:#1a2b3a; text-align:center; font-size:0.85rem; }
 tr.excess:hover { background:rgba(231,76,60,0.3) !important; }
 tr.partial:hover { background:rgba(241,196,15,0.3) !important; }
 tr.complete:hover { background:rgba(46,204,113,0.3) !important; }
 
-/* Modal */
 .modal { display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); justify-content:center; align-items:center; }
-.modal-content { background:#1f2a38; padding:20px; border-radius:12px; width:90%; max-width:700px; max-height:90%; overflow:auto; }
+.modal-content { background:#1f2a38; padding:15px; border-radius:12px; width:95%; max-width:700px; max-height:90%; overflow:auto; }
 .modal-content h3 { margin-top:0; color:#ffcc00; }
 .modal-content pre { background:#222f3e; padding:10px; border-radius:10px; overflow-x:auto; color:#fff; }
-.closeBtn { background:#c0392b; color:#fff; padding:8px 12px; border:none; border-radius:8px; cursor:pointer; margin-top:10px; }
+.closeBtn { background:#c0392b; color:#fff; padding:8px 12px; border:none; border-radius:8px; cursor:pointer; margin-top:10px; width:100%; }
 
-/* Progress bar */
-#loadingContainer { width:100%; background:#1a2b3a; border-radius:10px; height:20px; margin:20px 0; }
-#loadingBar { width:0%; height:100%; background:#27ae60; border-radius:10px; }
-#loadingText { color:#fff; margin-bottom:10px; font-weight:500; }
+.filters { margin-bottom:10px; display:flex; flex-wrap:wrap; gap:5px; }
+.filters label { margin-right:5px; font-size:0.85rem; }
+.filters select, .filters input { padding:5px 8px; border-radius:6px; border:none; background:#1a2b3a; color:#fff; font-size:0.85rem; }
+#loadingContainer { width:100%; background:#1a2b3a; border-radius:10px; height:20px; margin:10px 0; }
+#loadingBar { width:0%; height:100%; background:#27ae60; border-radius:10px; transition:width 0.3s; }
+#loadingText { color:#fff; font-size:0.85rem; margin:0 0 10px 0; }
 </style>
 </head>
 <body>
 
 <header>
   <h1>Amir Devriye Paneli</h1>
-  <div>
+  <div style="display:flex; flex-wrap:wrap; gap:5px;">
     <button id="logoutBtn">Çıkış</button>
-    <button id="statusBtn" style="margin-left:10px; background:#27ae60;">Durum Grafiği</button>
+    <button id="statusBtn" style="background:#27ae60;">Durum Grafiği</button>
   </div>
 </header>
 
@@ -196,9 +141,9 @@ tr.complete:hover { background:rgba(46,204,113,0.3) !important; }
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
+import { getDatabase, ref } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
+import { get } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
 
-// Firebase config (senin verdiğin)
 const firebaseConfig = {
   apiKey: "AIzaSyBX0PUaisTG-TvIOCCtKzSiI3e7yhLu3ik",
   authDomain: "guzelailemchat.firebaseapp.com",
@@ -212,12 +157,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Logout
-document.getElementById('logoutBtn').addEventListener('click', ()=>{ 
-  window.location.href='yetkili.html';
-});
-
-// DataTable
 let table = $('#devriyeTable').DataTable({ pageLength: 20, language:{
   "lengthMenu": "Göster _MENU_ kayıt",
   "zeroRecords": "Kayıt bulunamadı",
@@ -229,7 +168,6 @@ let table = $('#devriyeTable').DataTable({ pageLength: 20, language:{
 let devriyeData = [];
 let usersSet = new Set();
 
-// Status normalization
 function normalizeStatus(s){
   if(!s) return "Eksik";
   s = s.toLowerCase();
@@ -238,7 +176,6 @@ function normalizeStatus(s){
   else return "Eksik";
 }
 
-// Fetch data with batch
 const devriyeRef = ref(db,'devriyeHistory');
 
 get(devriyeRef).then(snapshot=>{
@@ -259,7 +196,9 @@ get(devriyeRef).then(snapshot=>{
 
     function addNextBatch(batchSize=50){
       const batch = allDevries.slice(index, index + batchSize);
-      batch.forEach(d=> devriyeData.push(d));
+      batch.forEach(d=>{
+        devriyeData.push(d);
+      });
       index += batchSize;
 
       const percent = Math.floor((index / total) * 100);
@@ -279,7 +218,6 @@ get(devriyeRef).then(snapshot=>{
   }
 });
 
-// Filtreleme ve diğer fonksiyonlar aynı
 document.getElementById('filterUser').addEventListener('change', filterTable);
 document.getElementById('filterStatus').addEventListener('change', filterTable);
 document.getElementById('filterDate').addEventListener('change', filterTable);
@@ -344,7 +282,6 @@ function updateCards(data){
   document.getElementById('excessDevriye').textContent = excess;
 }
 
-// Detay modal
 window.showDetail = function(user,timestamp){
   const detail = devriyeData.find(d=>d.user===user && d.timestamp.toString()===timestamp.toString());
   if(detail){
@@ -361,7 +298,6 @@ window.showDetail = function(user,timestamp){
   }
 };
 
-// Durum Grafiği
 document.getElementById('statusBtn').addEventListener('click', ()=>{
   updateStatusTable(devriyeData);
   document.getElementById('statusModal').style.display='flex';
@@ -405,6 +341,10 @@ function updateStatusTable(data){
     tbody.appendChild(tr);
   });
 }
+
+document.getElementById('logoutBtn').addEventListener('click', ()=>{ 
+  window.location.href='yetkili.html';
+});
 </script>
 </body>
 </html>
