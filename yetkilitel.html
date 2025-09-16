@@ -6,15 +6,6 @@
 <title>Yetkili Paneli</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-.panel-wrapper {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-  width: 100%;
-  max-width: 1200px; /* sayfa taşmasını engeller */
-  box-sizing: border-box;
-}
-
 body {
   margin:0;
   font-family:'Roboto',sans-serif;
@@ -24,9 +15,7 @@ body {
   padding:20px;
   display:flex;
   justify-content:center;
-  overflow-x:hidden; /* yatay taşmayı engeller */
 }
-
 @media (max-width: 1024px){
   .panel-wrapper {
     grid-template-columns: 1fr; /* tüm paneller alt alta gelir */
@@ -35,16 +24,7 @@ body {
   #searchInput {width:100%; margin-bottom:8px;}
   #searchBtn {width:100%;}
   header button {width:100%; margin:3px 0;}
-  table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed; /* sütun taşmasını engeller */
-  word-wrap: break-word; /* uzun kelimeler satır kırılır */
-}
-th, td {
-  overflow-wrap: break-word;
-}
-
+  table, th, td {font-size:0.85rem;}
 }
 
 .panel {
@@ -689,4 +669,4 @@ listUsers();
 
 </body>
 </html>
-
+  bu kodda hosuma gitmeyen bişey var söylesem düzelytirmisin 
