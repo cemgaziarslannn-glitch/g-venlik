@@ -16,13 +16,17 @@ body {
   display:flex;
   justify-content:center;
 }
-.panel-wrapper {
-  width:95%;
-  max-width:1400px;
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap:20px;
+@media (max-width: 1024px){
+  .panel-wrapper {
+    grid-template-columns: 1fr; /* tüm paneller alt alta gelir */
+  }
+  header {flex-direction:column; align-items:flex-start; gap:10px;}
+  #searchInput {width:100%; margin-bottom:8px;}
+  #searchBtn {width:100%;}
+  header button {width:100%; margin:3px 0;}
+  table, th, td {font-size:0.85rem;}
 }
+
 .panel {
   background: linear-gradient(145deg,#1f2a38,#263248);
   border-radius:20px;
