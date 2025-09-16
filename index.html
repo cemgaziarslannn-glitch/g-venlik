@@ -75,6 +75,23 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
 import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
+// Mobil / PC yönlendirme
+window.addEventListener("load", () => {
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  
+  if(isMobile) {
+    // Mobil kullanıcıysa mobil sayfaya yönlendir
+    if(window.location.href.indexOf("yetkilitel.html") === -1){
+      window.location.href = "yetkilitel.html";
+    }
+  } else {
+    // PC kullanıcıysa PC sayfasına yönlendir
+    if(window.location.href.indexOf("yetkili.html") === -1){
+      window.location.href = "yetkili.html";
+    }
+  }
+});
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyBX0PUaisTG-TvIOCCtKzSiI3e7yhLu3ik",
