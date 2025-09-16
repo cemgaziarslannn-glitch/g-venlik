@@ -15,6 +15,26 @@
 
 <style>
 body { margin:0; font-family:'Roboto',sans-serif; background:#1f2a38; color:#e0e0e0; }
+.filter-card {
+  background:#222f3e;
+  padding:10px;
+  border-radius:10px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.3);
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  font-size:0.9rem;
+}
+.filter-card label { color:#ffcc00; }
+.filter-card select, .filter-card input {
+  padding:6px 10px;
+  border-radius:6px;
+  border:none;
+  background:#1a2b3a;
+  color:#fff;
+  font-size:0.85rem;
+}
+
 header { padding:15px 10px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; background:#222f3e; box-shadow:0 5px 15px rgba(0,0,0,0.3);}
 header h1 { margin:0; color:#ffcc00; font-size:1.2rem; }
 header button { padding:8px 12px; border:none; border-radius:10px; background:#e67e22; color:#fff; cursor:pointer; margin-top:5px; }
@@ -81,10 +101,13 @@ tr.complete:hover { background:rgba(46,204,113,0.3) !important; }
     </div>
   </div>
 
-  <div class="filters">
+<div class="filters" style="flex-direction:column; gap:10px;">
+  <div class="filter-card">
     <label for="filterUser">Güvenlik:</label>
     <select id="filterUser"><option value="">Tümü</option></select>
+  </div>
 
+  <div class="filter-card">
     <label for="filterStatus">Durum:</label>
     <select id="filterStatus">
       <option value="">Tümü</option>
@@ -92,10 +115,14 @@ tr.complete:hover { background:rgba(46,204,113,0.3) !important; }
       <option value="Yarım devriye">Yarım devriye</option>
       <option value="Eksik">Eksik</option>
     </select>
+  </div>
 
+  <div class="filter-card">
     <label for="filterDate">Tarih:</label>
     <input type="date" id="filterDate">
   </div>
+</div>
+
 
   <table id="devriyeTable" class="display">
     <thead>
