@@ -24,11 +24,12 @@ body {
   gap:20px;
 }
 .panel {
-  background:#222f3e;
-  border-radius:15px;
+  background: linear-gradient(145deg,#1f2a38,#263248);
+  border-radius:20px;
   padding:20px;
-  box-shadow:0 10px 25px rgba(0,0,0,0.5);
+  box-shadow:0 8px 20px rgba(0,0,0,0.6);
 }
+
 .panel h2 {
   margin-top:0;
   margin-bottom:15px;
@@ -36,41 +37,47 @@ body {
   border-bottom:1px solid rgba(255,255,255,0.2);
   padding-bottom:5px;
 }
-input, select, textarea {
+
+/* ===================== TEXTAREA ===================== */
+textarea {
   width:100%;
-  padding:10px;
-  margin:6px 0;
-  border-radius:10px;
+  min-height:120px;
+  padding:12px;
+  font-size:1rem;
+  border-radius:15px;
   border:none;
   background:#1a2b3a;
   color:#fff;
-  text-transform:uppercase;
-  font-size:0.95rem;
+  resize:vertical;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.4);
 }
-input:focus, select:focus, textarea:focus {
+textarea:focus {
   outline:none;
-  box-shadow:0 0 10px #ffcc00;
+  box-shadow:0 0 8px #ffcc00;
 }
+
+/* ===================== BUTTON ===================== */
 button {
-  padding:10px 18px;
-  border:none;
-  border-radius:12px;
-  font-weight:500;
-  cursor:pointer;
-  transition:0.3s;
-  margin-top:8px;
+  border-radius:15px;
+  padding:12px 20px;
   font-size:0.95rem;
+  font-weight:600;
+  cursor:pointer;
+  border:none;
+  transition:0.3s;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
-button:hover {opacity:0.85;}
-#createUserBtn {background:#27ae60; color:#fff;}
-.delete {background:#e74c3c; color:#fff; margin-right:5px;}
-.edit {background:#9b59b6; color:#fff;}
-table {
-  width:100%;
-  border-collapse:collapse;
-  margin-top:10px;
-  font-size:0.9rem;
+#createUserBtn {background:linear-gradient(45deg,#27ae60,#2ecc71); color:#fff;}
+.delete {background:linear-gradient(45deg,#e74c3c,#ff6b6b); color:#fff;}
+.edit {background:linear-gradient(45deg,#9b59b6,#8e44ad); color:#fff;}
+#sendMsgBtn {background:linear-gradient(45deg,#2980b9,#3498db); color:#fff;}
+button:hover {
+  transform:translateY(-2px);
+  opacity:0.9;
+  box-shadow:0 6px 12px rgba(0,0,0,0.4);
 }
+
+/* ===================== TABLE ===================== */
 th, td {
   padding:10px;
   text-align:left;
@@ -83,6 +90,8 @@ th {
   text-transform:uppercase;
 }
 tr:hover {background: rgba(52,152,219,0.2);}
+
+/* ===================== HEADER ===================== */
 header {
   grid-column: span 2;
   display:flex;
@@ -104,6 +113,8 @@ header button {
   margin:5px 3px;
   font-size:0.85rem;
 }
+
+/* ===================== MODALS ===================== */
 .modal {
   display:none;
   position:fixed;
@@ -129,16 +140,25 @@ header button {
   gap:10px;
 }
 .modal-content input, .modal-content textarea {margin:0;}
+
+/* ===================== PROFİL SİMGESİ ===================== */
 #profileBtn {
   background:#2980b9;
   color:#fff;
   border-radius:50%;
-  width:40px;
-  height:40px;
-  font-size:18px;
+  width:45px;
+  height:45px;
+  font-size:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
+
+/* ===================== ARAMA BUTONU ===================== */
 #searchInput {width:calc(100% - 90px); display:inline-block;}
 #searchBtn {width:80px; display:inline-block; background:#3498db; color:#fff;}
+
+/* ===================== PAGINATION ===================== */
 .pagination {
   margin-top:10px;
   display:flex;
@@ -175,6 +195,8 @@ header button {
   font-size:0.85rem;
 }
 #totalUsers {margin-bottom:10px; font-weight:bold; color:#ffcc00;}
+
+/* ===================== MOBİL UYUMLULUK ===================== */
 @media (max-width: 1024px){
   .panel-wrapper {grid-template-columns:1fr;}
   header {flex-direction:column; align-items:flex-start; gap:10px;}
@@ -192,6 +214,50 @@ header button {
   th, td {padding:8px;}
   .progress-bar {font-size:0.75rem;}
 }
+/* Tüm form elemanları: input, textarea, select */
+input, textarea, select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: #1a2b3a; /* panel ile uyumlu koyu arka plan */
+  color: #fff;
+  font-size: 1rem;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+  transition: 0.3s;
+  outline: none;
+}
+
+/* focus efekti */
+input:focus, textarea:focus, select:focus {
+  border-color: #ffcc00;
+  box-shadow: 0 0 8px #ffcc00;
+}
+
+/* placeholder renkleri */
+::placeholder {
+  color: rgba(255,255,255,0.6);
+}
+
+/* select kutusundaki varsayılan ok simgesini temizle */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="white" height="16" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px 16px;
+}
+
+/* responsive: mobilde padding ve font küçülür */
+@media (max-width: 480px) {
+  input, textarea, select {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+}
+
 </style>
 </head>
 <body>
