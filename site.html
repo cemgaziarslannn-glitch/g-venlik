@@ -67,6 +67,14 @@ input[type=date], input[type=password], input[type=text] { padding:6px; border-r
 
 @media (min-width:600px){ .devriye-item { flex-direction: row; justify-content: space-between; align-items: center; } .devriye-left { margin-right:20px; } .devriye-status { margin-top:0; } }
 @media (max-width:600px){ .security-item { flex-direction: row; align-items: center; justify-content: space-between; } }
+/* Tüm sayfa metinlerini seçilemez yap */
+body, div, span, p, h1, h2, h3, h4, h5, h6, label, input, button {
+    user-select: none;
+    -webkit-user-select: none; /* Safari/Chrome */
+    -moz-user-select: none;    /* Firefox */
+    -ms-user-select: none;     /* IE/Edge */
+}
+
 </style>
 </head>
 <body>
