@@ -72,6 +72,14 @@
   #kargoPanel { background: rgba(255,255,255,0.05); padding:20px; border-radius:16px; box-shadow:0 6px 20px rgba(0,0,0,0.4); width:100%; margin-top:20px; }
   .kargo-item { display:flex; justify-content:space-between; align-items:center; background: rgba(0,0,0,0.2); padding:10px; border-radius:10px; margin-bottom:10px; }
   .kargo-item button { background:#27ae60; color:#fff; border:none; padding:6px 12px; border-radius:8px; cursor:pointer; }
+  /* Tüm sayfa metinlerini seçilemez yap */
+body, div, span, p, h1, h2, h3, h4, h5, h6, label, input, button {
+    user-select: none;
+    -webkit-user-select: none; /* Safari/Chrome */
+    -moz-user-select: none;    /* Firefox */
+    -ms-user-select: none;     /* IE/Edge */
+}
+
 </style>
 </head>
 <body>
@@ -240,7 +248,7 @@ onValue(kargoRef, snapshot => {
 const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
 if(!currentUser || currentUser.type!=='security'){
   alert("Güvenlik kullanıcı ile giriş yapmalısınız!");
-  window.location.href="login.html";
+  window.location.href="index.html";
 }
  const activeDevriyeRef = ref(db,'activeDevriye/'+(currentUser.username || currentUser.name));
 // === Olay Bildir / Kargo Bildir için nöbet kontrolü ===
@@ -570,32 +578,62 @@ await set(activeDevriyeRef, {
 
 
 
-devriyeEndBtn.addEventListener('click', async ()=>{
-  if(!devriyeStarted) return;
-  const devriyeEndTime=new Date();
-  let statusText = readPoints.length===document.querySelectorAll('.qrBtn').length ? "Tam devriye":"Eksik devriye";
-  const weekday = devriyeStartTime.toLocaleDateString('tr-TR',{ weekday:'long' });
-  const dateText = `${devriyeStartTime.toLocaleDateString()} (${weekday.charAt(0).toUpperCase()+weekday.slice(1)})`;
+devriyeEndBtn.addEventListener('click', async ()=> {
+    if(!devriyeStarted) return;
 
-  const devriyeRecord = {
-    user: currentUser.username || currentUser.name,
-    name: currentUser.name || currentUser.username,
-    date: devriyeStartTime.toISOString().split('T')[0],
-    displayDate: dateText,
-    start: devriyeStartTime.toLocaleTimeString(),
-    end: devriyeEndTime.toLocaleTimeString(),
-    status: statusText,
-    points:[...readPoints],
-    timestamp: Date.now()
-  };
+    const totalPoints = document.querySelectorAll('.qrBtn').length;
+    const readCount = readPoints.length;
+if(readCount < totalPoints){
+    // Eksik devriye modal
+    showConfirmModal(
+        `Devriyeyi Bitirmek İstiyorsunuz. Fakat ${totalPoints - readCount} Nokta Eksik!`,
+        async () => { // "Devriyeyi Bitir" callback
+            await finishDevriye();
+        },
+        () => { /* Devriyeye Devam Et callback */ }
+    );
+    return;
+}
 
-  push(ref(db,'devriyeHistory/'+(currentUser.username || currentUser.name)), devriyeRecord);
+
+    const devriyeEndTime = new Date();
+    let statusText = readCount === totalPoints ? "Tam devriye" : "Eksik devriye";
+    const weekday = devriyeStartTime.toLocaleDateString('tr-TR',{ weekday:'long' });
+    const dateText = `${devriyeStartTime.toLocaleDateString()} (${weekday.charAt(0).toUpperCase()+weekday.slice(1)})`;
+
+    const devriyeRecord = {
+        user: currentUser.username || currentUser.name,
+        name: currentUser.name || currentUser.username,
+        date: devriyeStartTime.toISOString().split('T')[0],
+        displayDate: dateText,
+        start: devriyeStartTime.toLocaleTimeString(),
+        end: devriyeEndTime.toLocaleTimeString(),
+        status: statusText,
+        points:[...readPoints],
+        timestamp: Date.now()
+    };
+
+    const userDevriyeRef = ref(db,'devriyeHistory/'+(currentUser.username || currentUser.name));
+
+    const snapshot = await get(userDevriyeRef);
+    const allRecords = snapshot.exists() ? Object.entries(snapshot.val()) : [];
+
+    if(allRecords.length >= 1000){
+        allRecords.sort((a,b) => (a[1].timestamp || 0) - (b[1].timestamp || 0));
+        const oldestKey = allRecords[0][0];
+        await set(ref(db,'devriyeHistory/'+(currentUser.username || currentUser.name)+'/'+oldestKey), null);
+    }
+
+    await push(userDevriyeRef, devriyeRecord);
+
     await set(activeDevriyeRef, null);
-  devriyeStarted=false;
-  devriyeEndBtn.disabled=true;
-  devriyeStatus.innerText='Devriye tamamlandı.';
-  document.querySelectorAll('.qrBtn').forEach(btn=>{ btn.classList.remove('read'); btn.nextElementSibling.innerText=btn.dataset.point; });
+    devriyeStarted = false;
+    devriyeEndBtn.disabled = true;
+    devriyeStatus.innerText = 'Devriye tamamlandı.';
+    document.querySelectorAll('.qrBtn').forEach(btn=>{ btn.classList.remove('read'); btn.nextElementSibling.innerText=btn.dataset.point; });
 });
+
+
 
 /* === Devriye geçmişini dinle === */
 onValue(ref(db,'devriyeHistory/'+(currentUser.username || currentUser.name)), snapshot=>{
@@ -638,63 +676,38 @@ historyToggleBtn.addEventListener('click', ()=>{
 });
 
 /* === QR SCANNER === */
-function hasCameraLib() { 
-    return typeof Html5Qrcode !== 'undefined'; 
+function hasCameraLib(){ return typeof Html5Qrcode !== 'undefined'; }
+
+async function startScanner(pointName, btnEl){
+  if(!devriyeStarted){ alert("Önce devriyeyi başlatın!"); return; }
+  if(!hasCameraLib()){ alert("QR kütüphanesi yüklenemedi!"); return; }
+  qrModal.style.display='flex';
+
+  if(qrScanner) qrScanner.clear();
+  qrScanner = new Html5Qrcode(qrReaderDivId);
+
+  qrScanner.start(
+    { facingMode:"environment" },
+    { fps:10, qrbox:250 },
+    qrCodeMessage => {
+      const qrId = qrCodeMessage.trim();
+      if(qrId === btnEl.dataset.qrid){
+        btnEl.classList.add('read');
+        btnEl.nextElementSibling.innerText='Tamamlandı';
+        if(!readPoints.includes(pointName)) readPoints.push(pointName);
+        qrScanner.stop();
+        qrModal.style.display='none';
+      } else {
+        alert("QR kod eşleşmedi!");
+      }
+    },
+    err=>{ /* console.log(err) */ }
+  ).catch(err=>{ alert("Kamera açılamadı: "+err); });
 }
 
-async function startScanner(pointName, btnEl) {
-    if (!devriyeStarted) { 
-        alert("Önce devriyeyi başlatın!"); 
-        return; 
-    }
-    if (!hasCameraLib()) { 
-        alert("QR kütüphanesi yüklenemedi!"); 
-        return; 
-    }
-    
-    qrModal.style.display = 'flex';
-
-    if (qrScanner) qrScanner.clear();
-    qrScanner = new Html5Qrcode(qrReaderDivId);
-
-    qrScanner.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: 250 },
-        qrCodeMessage => {
-            const qrId = qrCodeMessage.trim();
-
-            if (qrId === btnEl.dataset.qrid) {
-               // 🔹 Önce readPoints dizisine ekle
-if (!readPoints.includes(pointName)) readPoints.push(pointName);
-
-// 🔹 Firebase’e hemen kaydet
-update(activeDevriyeRef, { readPoints: readPoints })
-  .then(() => {
-      // UI güncelle
-      btnEl.classList.add('read');
-      btnEl.nextElementSibling.innerText = 'Tamamlandı';
-  })
-  .catch(err => {
-      console.error("Firebase güncelleme hatası:", err);
-      alert("QR durumu kaydedilemedi!");
-  });
-
-
-                qrScanner.stop();
-                qrModal.style.display = 'none';
-            } else {
-                alert("QR kod eşleşmedi!");
-            }
-        },
-        err => { /* console.log(err) */ }
-    ).catch(err => { 
-        alert("Kamera açılamadı: " + err); 
-    });
-}
-
-closeScanner.addEventListener('click', () => {
-    if (qrScanner) qrScanner.stop();
-    qrModal.style.display = 'none';
+closeScanner.addEventListener('click', ()=>{
+  if(qrScanner) qrScanner.stop();
+  qrModal.style.display='none';
 });
 
 /* === Firebase'den dinamik QR noktalarını çek (mobil uyumlu) === */
@@ -752,6 +765,78 @@ async function loadQRPoints() {
 
 // Sayfa yüklendiğinde çağır
 document.addEventListener('DOMContentLoaded', loadQRPoints);
+// Devriyeyi bitirme işlemi
+async function finishDevriye(){
+    const devriyeEndTime = new Date();
+    const totalPoints = document.querySelectorAll('.qrBtn').length;
+    const readCount = readPoints.length;
+    let statusText = readCount === totalPoints ? "Tam devriye" : "Eksik devriye";
+    const weekday = devriyeStartTime.toLocaleDateString('tr-TR',{ weekday:'long' });
+    const dateText = `${devriyeStartTime.toLocaleDateString()} (${weekday.charAt(0).toUpperCase()+weekday.slice(1)})`;
+
+    const devriyeRecord = {
+        user: currentUser.username || currentUser.name,
+        name: currentUser.name || currentUser.username,
+        date: devriyeStartTime.toISOString().split('T')[0],
+        displayDate: dateText,
+        start: devriyeStartTime.toLocaleTimeString(),
+        end: devriyeEndTime.toLocaleTimeString(),
+        status: statusText,
+        points:[...readPoints],
+        timestamp: Date.now()
+    };
+
+    const userDevriyeRef = ref(db,'devriyeHistory/'+(currentUser.username || currentUser.name));
+    await push(userDevriyeRef, devriyeRecord);
+    await set(activeDevriyeRef, null);
+
+    devriyeStarted = false;
+    devriyeEndBtn.disabled = true;
+    devriyeStatus.innerText = 'Devriye tamamlandı.';
+    document.querySelectorAll('.qrBtn').forEach(btn=>{
+        btn.classList.remove('read'); 
+        btn.nextElementSibling.innerText=btn.dataset.point;
+    });
+}
+
+// Modal gösterme fonksiyonu
+function showConfirmModal(message, onConfirm, onCancel){
+    let modal = document.getElementById('confirmModal');
+    if(!modal){
+        modal = document.createElement('div');
+        modal.id = 'confirmModal';
+        modal.style.cssText = `
+            display:flex; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+            background: rgba(231,76,60,0.95); color:#fff; padding:20px; border-radius:16px;
+            box-shadow:0 8px 24px rgba(0,0,0,0.4); z-index:9999; flex-direction:column;
+            max-width:90%; width:auto; text-align:center;
+        `;
+        const msgEl = document.createElement('div'); msgEl.id='confirmMessage'; msgEl.style.marginBottom='16px';
+        modal.appendChild(msgEl);
+
+        const btnContainer = document.createElement('div'); btnContainer.style.display='flex'; btnContainer.style.justifyContent='space-around';
+const btnFinish = document.createElement('button');
+btnFinish.innerText = 'Devriyeyi Bitir';
+btnFinish.style.cssText = 'background:#f1c40f;color:#000;padding:8px 16px;border:none;border-radius:8px;cursor:pointer;font-weight:600;';
+btnFinish.addEventListener('click', ()=>{ onConfirm(); modal.style.display='none'; });
+
+const btnContinue = document.createElement('button');
+btnContinue.innerText = 'Devriyeye Devam Et';
+btnContinue.style.cssText = 'background:#27ae60;color:#fff;padding:8px 16px;border:none;border-radius:8px;cursor:pointer;font-weight:600;';
+btnContinue.addEventListener('click', ()=>{ onCancel(); modal.style.display='none'; });
+
+
+
+        btnContainer.appendChild(btnFinish);
+        btnContainer.appendChild(btnContinue);
+        modal.appendChild(btnContainer);
+
+        document.body.appendChild(modal);
+    }
+    document.getElementById('confirmMessage').innerText = message;
+    modal.style.display='flex';
+}
+
 
 </script>
 </body>
